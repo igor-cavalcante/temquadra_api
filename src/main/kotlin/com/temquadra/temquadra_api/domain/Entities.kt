@@ -9,6 +9,7 @@ import java.util.UUID
 enum class RoleEnum { ADMIN, USUARIO, LIDER }
 enum class TipoPisoEnum { CIMENTO, EMBORRACHADO, AREIA, GRAMADO, GRAMA_SINTETICA, OUTRO }
 enum class CoberturaEnum { COBERTA, PARCIALMENTE_COBERTA, DESCOBERTA }
+enum class StatusSugestaoEnum { PENDENTE, APROVADO, REJEITADO }
 
 @Entity
 @Table(name = "usuarios")
@@ -86,6 +87,75 @@ class QuadraImage(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quadra_id")
     val quadra: Quadra,
+
+    @Column(name = "url_minio")
+    val urlMinio: String,
+
+    @Column(name = "data_criacao", insertable = false, updatable = false)
+    val dataCriacao: OffsetDateTime? = null
+)
+
+
+@Entity
+@Table(name = "quadras_sugestao")
+class QuadraSugestao(
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_sugestao_quadra")
+    val idSugestaoQuadra: UUID? = null,
+
+    @Column(name = "nome_solicitante")
+    val nomeSolicitante: String?,
+
+    @Column(name = "telefone_solicitante")
+    val telefoneSolicitante: String?,
+
+    val nome: String,
+    val descricao: String?,
+    val endereco: String,
+    val latitude: Double?,
+    val longitude: Double?,
+
+    @Column(name = "bairro_regiao")
+    val bairroRegiao: String?,
+
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType::class)
+    @Column(name = "tipo_piso")
+    val tipoPiso: TipoPisoEnum = TipoPisoEnum.CIMENTO,
+
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType::class)
+    val cobertura: CoberturaEnum = CoberturaEnum.DESCOBERTA,
+
+    val iluminacao: Boolean = false,
+    val acessibilidade: Boolean = false,
+
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType::class)
+    var status: StatusSugestaoEnum = StatusSugestaoEnum.PENDENTE,
+
+    @Column(name = "observacao_admin")
+    var observacaoAdmin: String? = null,
+
+    @OneToMany(mappedBy = "sugestaoQuadra", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val imagens: MutableList<SugestaoQuadraImage> = mutableListOf(),
+
+    @Column(name = "data_criacao", insertable = false, updatable = false)
+    val dataCriacao: OffsetDateTime? = null
+)
+
+@Entity
+@Table(name = "sugestao_quadra_image")
+class SugestaoQuadraImage(
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id_sugestao_quadra_image")
+    val idSugestaoQuadraImage: UUID? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sugestao_quadra_id")
+    val sugestaoQuadra: QuadraSugestao,
 
     @Column(name = "url_minio")
     val urlMinio: String,

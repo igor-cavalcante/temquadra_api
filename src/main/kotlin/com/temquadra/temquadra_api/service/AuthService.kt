@@ -1,9 +1,7 @@
 package com.temquadra.temquadra_api.service
 
 import com.temquadra.temquadra_api.domain.*
-import com.temquadra.temquadra_api.dto.LoginRequest
-import com.temquadra.temquadra_api.dto.LoginResponse
-import com.temquadra.temquadra_api.dto.RegisterRequest
+import com.temquadra.temquadra_api.dto.*
 import com.temquadra.temquadra_api.repository.UsuarioRepository
 import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -39,7 +37,6 @@ class AuthService(
             role = usuarioSalvo.role.name
         )
     }
-
 
     fun login(request: LoginRequest): LoginResponse {
         val usuario = usuarioRepository.findByEmail(request.email)

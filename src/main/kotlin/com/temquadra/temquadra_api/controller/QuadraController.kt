@@ -1,8 +1,8 @@
 package com.temquadra.temquadra_api.controller
 
-import com.temquadra.temquadra_api.dto.CadastrarQuadraRequest
 import com.temquadra.temquadra_api.dto.*
 import com.temquadra.temquadra_api.service.QuadraService
+import com.temquadra.temquadra_api.service.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -32,10 +32,28 @@ class QuadraController(private val quadraService: QuadraService) {
         @RequestPart("fotos", required = false) fotos: List<MultipartFile>?,
         @RequestHeader("X-User-Id", required = false) userIdHeader: String?
     ): ResponseEntity<QuadraDetalhadaResponse> {
-
         val userId = userIdHeader?.let { UUID.fromString(it) }
         val novaQuadra = quadraService.cadastrarQuadra(request, fotos, userId)
-
         return ResponseEntity.status(HttpStatus.CREATED).body(novaQuadra)
     }
+
+    // 1. Atualizar dados cadastrais da quadra
+    @PutMapping("/{id}")
+    fun atualizarQuadra(
+        @PathVariable id: UUID,
+        @RequestBody request: AtualizarQuadraRequest
+    ): ResponseEntity<QuadraDetalhadaResponse> {
+        val quadraAtualizada = quadraService.atualizarQuadra(id, request)
+        return ResponseEntity.ok(quadraAtualizada)
+    }
+
+    // 2. Desativar / Deletar quadra
+    @DeleteMapping("/{id}")
+    fun deletarQuadra(@PathVariable id: UUID): ResponseEntity<Void> {
+        quadraService.deletarQuadra(id)
+        return ResponseEntity.noContent().build()
+    }
+
+
+
 }
